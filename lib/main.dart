@@ -13,8 +13,8 @@ import 'features/dashboard/presentation/pages/dashboard_page.dart';
 import 'features/processes/presentation/pages/process_list_page.dart';
 import 'features/processes/presentation/pages/process_detail_page.dart';
 import 'features/agenda/presentation/pages/schedule_audience_page.dart';
-import 'features/auth/presentation/controllers/auth_controller.dart';
-import 'features/processes/presentation/controllers/process_controller.dart';
+import 'features/auth/presentation/viewmodels/auth_view_model.dart';
+import 'features/processes/presentation/viewmodels/process_list_view_model.dart';
 import 'features/processes/presentation/pages/process_create_page.dart';
 import 'features/clients/presentation/pages/client_create_page.dart';
 import 'features/clients/presentation/pages/client_list_page.dart';
@@ -28,8 +28,8 @@ void main() async {
   }
   setupLocator();
   Get.put(ThemeController());
-  Get.put(AuthController());
-  Get.put(ProcessController());
+  Get.put(AuthViewModel());
+  Get.put(ProcessListViewModel());
   runApp(const MainApp());
 }
 
@@ -44,7 +44,7 @@ class _MainAppState extends State<MainApp> {
   late final GoRouter _router;
 
   ThemeController get _theme => Get.find();
-  AuthController get _auth => Get.find();
+  AuthViewModel get _auth => Get.find();
 
   @override
   void initState() {

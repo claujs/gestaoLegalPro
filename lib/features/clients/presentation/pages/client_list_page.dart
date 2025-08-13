@@ -4,7 +4,7 @@ import 'dart:math' as math; // adicionado para cálculo de largura mínima
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http; // busca CEP
 import 'dart:convert'; // para jsonDecode
-import '../../../processes/presentation/controllers/process_controller.dart';
+import '../../../processes/presentation/viewmodels/process_list_view_model.dart';
 import '../../data/process_client_link_adapter.dart';
 import '../../data/mock_clientes.dart';
 import '../../../processes/domain/models/process_models.dart';
@@ -107,7 +107,7 @@ class _ClientListPageState extends State<ClientListPage> {
 
   String? _primeiroProcessoDoCliente(String clientName) {
     try {
-      final procCtrl = Get.find<ProcessController>();
+      final procCtrl = Get.find<ProcessListViewModel>();
       final proc = procCtrl.processes.firstWhereOrNull(
         (p) => p['cliente'] == clientName,
       );
@@ -463,8 +463,8 @@ class _ClientListPageState extends State<ClientListPage> {
       ),
     );
     final data = _extended[cliente.clientId]!;
-    final procCtrl = Get.isRegistered<ProcessController>()
-        ? Get.find<ProcessController>()
+    final procCtrl = Get.isRegistered<ProcessListViewModel>()
+        ? Get.find<ProcessListViewModel>()
         : null;
     final processos = (procCtrl?.processes ?? []).cast<Map<String, String>>();
     final width = MediaQuery.of(context).size.width;

@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:get/get.dart';
 import '../pages/process_detail_page.dart';
 import '../widgets/process_table.dart';
-import '../controllers/process_controller.dart';
+import '../viewmodels/process_list_view_model.dart';
 
 class ProcessListPage extends StatefulWidget {
   const ProcessListPage({super.key});
@@ -20,14 +20,13 @@ class _ProcessListPageState extends State<ProcessListPage> {
   final _verticalScroll = ScrollController();
   final _horizontalScroll = ScrollController();
 
-  final _controller = Get.find<ProcessController>();
-  final Set<String> _selected = {};
+  final _vm = Get.find<ProcessListViewModel>();
 
   @override
   void initState() {
     super.initState();
-    if (_controller.processes.isEmpty) {
-      _controller.load();
+    if (_vm.processes.isEmpty) {
+      _vm.load();
     }
   }
 
@@ -41,7 +40,7 @@ class _ProcessListPageState extends State<ProcessListPage> {
   }
 
   void _applyFilter() {
-    _controller.applyFilters(
+    _vm.applyFilters(
       cnj: _cnjCtrl.text,
       cliente: _clienteCtrl.text,
       status: _status ?? '',
@@ -49,27 +48,13 @@ class _ProcessListPageState extends State<ProcessListPage> {
   }
 
   void _clearFilter() {
-    _controller.clearFilters();
+    _vm.clearFilters();
     _cnjCtrl.clear();
     _clienteCtrl.clear();
     setState(() => _status = null);
   }
 
-  bool get _allVisibleSelected =>
-      _controller.paginated.isNotEmpty &&
-      _controller.paginated.every((p) => _selected.contains(p['cnj']));
-
-  void _toggleSelectAll(bool? v) {
-    setState(() {
-      if (v == true) {
-        _selected.addAll(_controller.paginated.map((p) => p['cnj']!));
-      } else {
-        _selected.removeWhere(
-          (cnj) => _controller.paginated.any((p) => p['cnj'] == cnj),
-        );
-      }
-    });
-  }
+  void _toggleSelectAll(bool? v) => _vm.toggleSelectAll(v == true);
 
   @override
   Widget build(BuildContext context) {
@@ -88,12 +73,12 @@ class _ProcessListPageState extends State<ProcessListPage> {
               ),
             ),
           ),
-          if (_selected.isNotEmpty)
+          if (_vm.selected.isNotEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Center(
                 child: Text(
-                  '${_selected.length} selecionado(s)',
+                  '${_vm.selected.length} selecionado(s)',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: cs.onPrimaryContainer,
@@ -169,17 +154,17 @@ class _ProcessListPageState extends State<ProcessListPage> {
         ),
       ),
       body: Obx(() {
-        final loading = _controller.isLoading.value;
-        final page = _controller.page.value;
-        final totalPages = _controller.totalPages;
-        final data = _controller.paginated;
+        final loading = _vm.isLoading.value;
+        final page = _vm.page.value;
+        final totalPages = _vm.totalPages;
+        final data = _vm.paginated;
         return Stack(
           children: [
             Positioned.fill(
               child: ProcessTable(
                 processes: data,
-                selected: _selected,
-                allVisibleSelected: _allVisibleSelected,
+                selected: _vm.selected,
+                allVisibleSelected: _vm.allVisibleSelected,
                 onToggleAll: _toggleSelectAll,
                 onTap: (p) {
                   context.push(
@@ -188,13 +173,7 @@ class _ProcessListPageState extends State<ProcessListPage> {
                   );
                 },
                 onSelect: (cnj, v) {
-                  setState(() {
-                    if (v == true) {
-                      _selected.add(cnj);
-                    } else {
-                      _selected.remove(cnj);
-                    }
-                  });
+                  _vm.toggleSelection(cnj, v ?? false);
                 },
                 verticalController: _verticalScroll,
                 horizontalController: _horizontalScroll,
@@ -216,39 +195,35 @@ class _ProcessListPageState extends State<ProcessListPage> {
                   child: Row(
                     children: [
                       Text(
-                        'Página ${page + 1} de ${totalPages == 0 ? 1 : totalPages}  •  ${_controller.filtered.length} itens',
+                        'Página ${page + 1} de ${totalPages == 0 ? 1 : totalPages}  •  ${_vm.filtered.length} itens',
                         style: const TextStyle(fontSize: 12),
                       ),
                       const Spacer(),
                       IconButton(
                         tooltip: 'Primeira',
-                        onPressed: page <= 0
-                            ? null
-                            : () => _controller.setPage(0),
+                        onPressed: page <= 0 ? null : () => _vm.setPage(0),
                         icon: const Icon(Icons.first_page, size: 20),
                       ),
                       IconButton(
                         tooltip: 'Anterior',
-                        onPressed: page <= 0 ? null : _controller.prevPage,
+                        onPressed: page <= 0 ? null : _vm.prevPage,
                         icon: const Icon(Icons.chevron_left, size: 20),
                       ),
                       IconButton(
                         tooltip: 'Próxima',
-                        onPressed: page >= totalPages - 1
-                            ? null
-                            : _controller.nextPage,
+                        onPressed: page >= totalPages - 1 ? null : _vm.nextPage,
                         icon: const Icon(Icons.chevron_right, size: 20),
                       ),
                       IconButton(
                         tooltip: 'Última',
                         onPressed: page >= totalPages - 1
                             ? null
-                            : () => _controller.setPage(totalPages - 1),
+                            : () => _vm.setPage(totalPages - 1),
                         icon: const Icon(Icons.last_page, size: 20),
                       ),
                       const SizedBox(width: 8),
                       DropdownButton<int>(
-                        value: _controller.pageSize.value,
+                        value: _vm.pageSize.value,
                         items: const [10, 20, 50, 100]
                             .map(
                               (e) =>
@@ -257,8 +232,8 @@ class _ProcessListPageState extends State<ProcessListPage> {
                             .toList(),
                         onChanged: (v) {
                           if (v != null) {
-                            _controller.pageSize.value = v;
-                            _controller.page.value = 0;
+                            _vm.pageSize.value = v;
+                            _vm.page.value = 0;
                           }
                         },
                       ),

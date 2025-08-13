@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/models/client_models.dart';
-import '../controllers/client_create_controller.dart';
+import '../viewmodels/client_create_view_model.dart';
 import 'package:intl/intl.dart';
 
 class ClientCreatePage extends StatefulWidget {
@@ -14,7 +14,7 @@ class ClientCreatePage extends StatefulWidget {
 }
 
 class _ClientCreatePageState extends State<ClientCreatePage> {
-  late final ClientCreateController c;
+  late final ClientCreateViewModel c;
   final _formKeys = List.generate(5, (_) => GlobalKey<FormState>());
 
   final _dateFormat = DateFormat('dd/MM/yyyy');
@@ -30,7 +30,7 @@ class _ClientCreatePageState extends State<ClientCreatePage> {
   @override
   void initState() {
     super.initState();
-    c = Get.put(ClientCreateController());
+    c = Get.put(ClientCreateViewModel());
   }
 
   @override
@@ -671,12 +671,5 @@ class _ClientCreatePageState extends State<ClientCreatePage> {
       ),
     );
     return res;
-  }
-
-  void _onSave() {
-    if (_formKeys.every((k) => k.currentState?.validate() ?? false)) {
-      c.addCliente(c.draft.value);
-      context.go('/dashboard/clientes');
-    }
   }
 }

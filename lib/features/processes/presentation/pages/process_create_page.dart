@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart'; // adicionado para navegação ao cadastro de cliente
-import '../controllers/process_create_controller.dart';
+import '../viewmodels/process_create_view_model.dart';
 import '../../domain/models/process_models.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/utils/process_create_texts.dart';
 
 class ProcessCreatePage extends StatefulWidget {
   const ProcessCreatePage({super.key});
@@ -15,7 +16,7 @@ class ProcessCreatePage extends StatefulWidget {
 
 class _ProcessCreatePageState extends State<ProcessCreatePage> {
   final _formKeys = List.generate(5, (_) => GlobalKey<FormState>());
-  late final ProcessCreateController c;
+  late final ProcessCreateViewModel c;
   final _cnjCtrl = TextEditingController();
   final _valorCtrl = TextEditingController();
   final _tagCtrl = TextEditingController();
@@ -24,7 +25,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
   @override
   void initState() {
     super.initState();
-    c = Get.put(ProcessCreateController());
+    c = Get.put(ProcessCreateViewModel());
   }
 
   @override
@@ -36,16 +37,16 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
   }
 
   String? _validateCnj(String? v) {
-    if (v == null || v.isEmpty) return 'Obrigatório';
+    if (v == null || v.isEmpty) return ProcessCreateTexts.obrigatorio;
     // Simplificação: validar comprimento 25
-    if (v.length != 25) return 'CNJ inválido';
+    if (v.length != 25) return ProcessCreateTexts.cnjInvalido;
     return null;
   }
 
   String? _validateValor(String? v) {
     if (v == null || v.isEmpty) return null;
     final clean = v.replaceAll('.', '').replaceAll(',', '.');
-    if (double.tryParse(clean) == null) return 'Valor inválido';
+    if (double.tryParse(clean) == null) return ProcessCreateTexts.valorInvalido;
     return null;
   }
 
@@ -74,29 +75,38 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
             children: [
               TextFormField(
                 controller: _cnjCtrl,
-                decoration: const InputDecoration(labelText: 'Número CNJ *'),
+                decoration: const InputDecoration(
+                  labelText: ProcessCreateTexts.numeroCnj,
+                ),
                 validator: _validateCnj,
                 onChanged: (v) => c.draft.update((d) => d!.cnj = v),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Status *'),
+                decoration: const InputDecoration(
+                  labelText: ProcessCreateTexts.status,
+                ),
                 items: const [
                   DropdownMenuItem(
-                    value: 'Em andamento',
-                    child: Text('Em andamento'),
+                    value: ProcessCreateTexts.statusEmAndamento,
+                    child: Text(ProcessCreateTexts.statusEmAndamento),
                   ),
                   DropdownMenuItem(
-                    value: 'Concluído',
-                    child: Text('Concluído'),
+                    value: ProcessCreateTexts.statusConcluido,
+                    child: Text(ProcessCreateTexts.statusConcluido),
                   ),
-                  DropdownMenuItem(value: 'Suspenso', child: Text('Suspenso')),
+                  DropdownMenuItem(
+                    value: ProcessCreateTexts.statusSuspenso,
+                    child: Text(ProcessCreateTexts.statusSuspenso),
+                  ),
                 ],
                 value: c.draft.value.status.isEmpty
                     ? null
                     : c.draft.value.status,
                 onChanged: (v) => c.draft.update((d) => d!.status = v ?? ''),
-                validator: (v) => v == null || v.isEmpty ? 'Obrigatório' : null,
+                validator: (v) => v == null || v.isEmpty
+                    ? ProcessCreateTexts.obrigatorio
+                    : null,
               ),
               const SizedBox(height: 12),
               Obx(() {
@@ -117,11 +127,11 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                   },
                   child: InputDecorator(
                     decoration: const InputDecoration(
-                      labelText: 'Data de distribuição *',
+                      labelText: ProcessCreateTexts.dataDistribuicao,
                     ),
                     child: Text(
                       date == null
-                          ? 'Selecionar'
+                          ? ProcessCreateTexts.selecionar
                           : DateFormat('dd/MM/yyyy').format(date),
                     ),
                   ),
@@ -130,7 +140,9 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _valorCtrl,
-                decoration: InputDecoration(labelText: 'Valor da causa (R\$)'),
+                decoration: const InputDecoration(
+                  labelText: ProcessCreateTexts.valorCausa,
+                ),
                 keyboardType: TextInputType.number,
                 validator: _validateValor,
                 onChanged: (v) {
@@ -165,7 +177,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                             controller: ctrl,
                             focusNode: focus,
                             decoration: const InputDecoration(
-                              labelText: 'Cliente *',
+                              labelText: ProcessCreateTexts.clienteCampo,
                             ),
                           ),
                       onSelected: (sel) {
@@ -173,7 +185,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                           ProcessClientLink(
                             clientId: sel.clientId,
                             name: sel.name,
-                            role: 'Autor',
+                            role: ProcessCreateTexts.selecionarRoleAutor,
                           ),
                         );
                       },
@@ -187,7 +199,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                       // TODO: após implementação de criação de cliente, recarregar lista de clientes (ex: c.reloadClients())
                     },
                     icon: const Icon(Icons.person_add),
-                    label: const Text('Novo'),
+                    label: const Text(ProcessCreateTexts.novo),
                   ),
                 ],
               ),
@@ -195,7 +207,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
               Obx(() {
                 final list = c.draft.value.clients;
                 if (list.isEmpty) {
-                  return const Text('Nenhum cliente adicionado');
+                  return const Text(ProcessCreateTexts.nenhumClienteAdicionado);
                 }
                 return Column(
                   children: list
@@ -203,14 +215,17 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                         (cl) => Card(
                           child: ListTile(
                             title: Text(cl.name),
-                            subtitle: Text('Papel: ${cl.role}'),
+                            subtitle: Text(
+                              '${ProcessCreateTexts.papelPrefix}${cl.role}',
+                            ),
                             leading: IconButton(
                               icon: Icon(
                                 cl.isPrimary ? Icons.star : Icons.star_border,
                                 color: cl.isPrimary ? Colors.amber : null,
                               ),
                               onPressed: () => _togglePrimary(cl),
-                              tooltip: 'Cliente principal',
+                              tooltip:
+                                  ProcessCreateTexts.clientePrincipalTooltip,
                             ),
                             trailing: IconButton(
                               icon: const Icon(Icons.delete_outline),
@@ -236,16 +251,21 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
             child: Column(
               children: [
                 DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Segmento'),
+                  decoration: const InputDecoration(
+                    labelText: ProcessCreateTexts.segmento,
+                  ),
                   items: const [
                     DropdownMenuItem(
-                      value: 'Estadual',
-                      child: Text('Estadual'),
+                      value: ProcessCreateTexts.estadual,
+                      child: Text(ProcessCreateTexts.estadual),
                     ),
-                    DropdownMenuItem(value: 'Federal', child: Text('Federal')),
                     DropdownMenuItem(
-                      value: 'Trabalho',
-                      child: Text('Trabalho'),
+                      value: ProcessCreateTexts.federal,
+                      child: Text(ProcessCreateTexts.federal),
+                    ),
+                    DropdownMenuItem(
+                      value: ProcessCreateTexts.trabalho,
+                      child: Text(ProcessCreateTexts.trabalho),
                     ),
                   ],
                   value: c.draft.value.segment.isEmpty
@@ -255,24 +275,28 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'Tribunal'),
+                  decoration: const InputDecoration(
+                    labelText: ProcessCreateTexts.tribunal,
+                  ),
                   onChanged: (v) => c.draft.update((d) => d!.tribunal = v),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'UF'),
+                  decoration: const InputDecoration(
+                    labelText: ProcessCreateTexts.uf,
+                  ),
                   onChanged: (v) => c.draft.update((d) => d!.uf = v),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   decoration: const InputDecoration(
-                    labelText: 'Comarca / Seção',
+                    labelText: ProcessCreateTexts.comarcaSecao,
                   ),
                   onChanged: (v) => c.draft.update((d) => d!.comarca = v),
                 ),
                 const SizedBox(height: 12),
                 // Campo Foro / Vara com autocomplete e adição dinâmica
-                GetX<ProcessCreateController>(
+                GetX<ProcessCreateViewModel>(
                   builder: (ctrlGet) {
                     final options = ctrlGet.foros.toList();
                     final foroAtual = ctrlGet.draft.value.foro;
@@ -297,9 +321,9 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                           controller: textCtrl,
                           focusNode: focus,
                           decoration: InputDecoration(
-                            labelText: 'Foro / Vara',
+                            labelText: ProcessCreateTexts.foroVara,
                             suffixIcon: IconButton(
-                              tooltip: 'Adicionar foro',
+                              tooltip: ProcessCreateTexts.adicionarForoTooltip,
                               icon: const Icon(Icons.add),
                               onPressed: () {
                                 ctrlGet.addForo(textCtrl.text);
@@ -330,14 +354,14 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                 const SizedBox(height: 12),
                 TextFormField(
                   decoration: const InputDecoration(
-                    labelText: 'Classe processual',
+                    labelText: ProcessCreateTexts.classeProcessual,
                   ),
                   onChanged: (v) => c.draft.update((d) => d!.classe = v),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   decoration: const InputDecoration(
-                    labelText: 'Assunto principal',
+                    labelText: ProcessCreateTexts.assuntoPrincipal,
                   ),
                   onChanged: (v) =>
                       c.draft.update((d) => d!.assuntoPrincipal = v),
@@ -362,7 +386,9 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                   alignment: Alignment.centerLeft,
                   child: TextButton.icon(
                     onPressed: () async {
-                      final txt = await _showAddDialog('Assunto adicional');
+                      final txt = await _showAddDialog(
+                        ProcessCreateTexts.assuntoAdicional,
+                      );
                       if (txt != null && txt.isNotEmpty) {
                         c.draft.value.assuntosAdicionais.add(txt);
                         c.draft.refresh();
@@ -370,7 +396,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                       }
                     },
                     icon: const Icon(Icons.add),
-                    label: const Text('Adicionar assunto'),
+                    label: const Text(ProcessCreateTexts.adicionarAssunto),
                   ),
                 ),
               ],
@@ -385,19 +411,19 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Polo Ativo'),
+                const Text(ProcessCreateTexts.poloAtivo),
                 const SizedBox(height: 8),
                 _partyList(c.draft.value.poloAtivo, true),
                 const SizedBox(height: 16),
-                const Text('Polo Passivo'),
+                const Text(ProcessCreateTexts.poloPassivo),
                 const SizedBox(height: 8),
                 _partyList(c.draft.value.poloPassivo, false),
                 const SizedBox(height: 24),
-                const Text('Advogados do cliente'),
+                const Text(ProcessCreateTexts.advClientes),
                 const SizedBox(height: 8),
                 _lawyerList(c.draft.value.advClientes, true),
                 const SizedBox(height: 16),
-                const Text('Advogados da parte contrária'),
+                const Text(ProcessCreateTexts.advContrarios),
                 const SizedBox(height: 8),
                 _lawyerList(c.draft.value.advContrarios, false),
               ],
@@ -413,12 +439,17 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Sigilo'),
+                  decoration: const InputDecoration(
+                    labelText: ProcessCreateTexts.sigilo,
+                  ),
                   items: const [
-                    DropdownMenuItem(value: 'Público', child: Text('Público')),
                     DropdownMenuItem(
-                      value: 'Segredo de justiça',
-                      child: Text('Segredo de justiça'),
+                      value: ProcessCreateTexts.sigiloPublico,
+                      child: Text(ProcessCreateTexts.sigiloPublico),
+                    ),
+                    DropdownMenuItem(
+                      value: ProcessCreateTexts.sigiloSegredo,
+                      child: Text(ProcessCreateTexts.sigiloSegredo),
                     ),
                   ],
                   value: c.draft.value.sigilo,
@@ -428,32 +459,39 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                 const SizedBox(height: 12),
                 TextFormField(
                   decoration: const InputDecoration(
-                    labelText: 'Procedimento / Rito',
+                    labelText: ProcessCreateTexts.procedimentoRito,
                   ),
                   onChanged: (v) => c.draft.update((d) => d!.rito = v),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'Origem'),
+                  decoration: const InputDecoration(
+                    labelText: ProcessCreateTexts.origem,
+                  ),
                   onChanged: (v) => c.draft.update((d) => d!.origem = v),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   decoration: const InputDecoration(
-                    labelText: 'Número anterior',
+                    labelText: ProcessCreateTexts.numeroAnterior,
                   ),
                   onChanged: (v) =>
                       c.draft.update((d) => d!.numeroAnterior = v),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Formato'),
+                  decoration: const InputDecoration(
+                    labelText: ProcessCreateTexts.formato,
+                  ),
                   items: const [
                     DropdownMenuItem(
-                      value: 'Eletrônico',
-                      child: Text('Eletrônico'),
+                      value: ProcessCreateTexts.formatoEletronico,
+                      child: Text(ProcessCreateTexts.formatoEletronico),
                     ),
-                    DropdownMenuItem(value: 'Físico', child: Text('Físico')),
+                    DropdownMenuItem(
+                      value: ProcessCreateTexts.formatoFisico,
+                      child: Text(ProcessCreateTexts.formatoFisico),
+                    ),
                   ],
                   value: c.draft.value.formato,
                   onChanged: (v) =>
@@ -479,7 +517,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                   alignment: Alignment.centerLeft,
                   child: TextButton.icon(
                     onPressed: () async {
-                      final txt = await _showAddDialog('Tag');
+                      final txt = await _showAddDialog(ProcessCreateTexts.tag);
                       if (txt != null && txt.isNotEmpty) {
                         c.draft.value.tags.add(txt);
                         c.draft.refresh();
@@ -487,19 +525,24 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                       }
                     },
                     icon: const Icon(Icons.add),
-                    label: const Text('Adicionar tag'),
+                    label: const Text(ProcessCreateTexts.adicionarTag),
                   ),
                 ),
                 const SizedBox(height: 12),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Criar alerta do primeiro prazo'),
+                  title: const Text(
+                    ProcessCreateTexts.criarAlertaPrimeiroPrazo,
+                  ),
                   value: c.draft.value.criarAlertaPrimeiroPrazo,
                   onChanged: (v) =>
                       c.draft.update((d) => d!.criarAlertaPrimeiroPrazo = v),
                 ),
                 const SizedBox(height: 12),
-                Text('Resumo', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  ProcessCreateTexts.resumo,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: 8),
                 Obx(() {
                   final map = c.draft.value.toMap();
@@ -519,7 +562,9 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                           },
                     icon: const Icon(Icons.save),
                     label: Text(
-                      c.isSaving.value ? 'Salvando...' : 'Salvar Processo',
+                      c.isSaving.value
+                          ? ProcessCreateTexts.salvando
+                          : ProcessCreateTexts.salvarProcesso,
                     ),
                   ),
                 ),
@@ -538,14 +583,14 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
       final step = c.currentStep.value;
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Novo Processo'),
+          title: const Text(ProcessCreateTexts.novoProcesso),
           actions: [
             if (c.autoSavedAt.value != null)
               Padding(
                 padding: const EdgeInsets.only(right: 16),
                 child: Center(
                   child: Text(
-                    'Rascunho salvo às ${DateFormat('HH:mm:ss').format(c.autoSavedAt.value!)}',
+                    '${ProcessCreateTexts.rascunhoSalvoPrefix}${DateFormat('HH:mm:ss').format(c.autoSavedAt.value!)}',
                     style: const TextStyle(fontSize: 12),
                   ),
                 ),
@@ -569,21 +614,21 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                           if (step < 4)
                             FilledButton(
                               onPressed: canNext ? () => c.nextStep() : null,
-                              child: const Text('Avançar'),
+                              child: const Text(ProcessCreateTexts.avancar),
                             ),
                           if (step == 4) const SizedBox(),
                           const SizedBox(width: 8),
                           if (step > 0)
                             OutlinedButton(
                               onPressed: () => c.prevStep(),
-                              child: const Text('Voltar'),
+                              child: const Text(ProcessCreateTexts.voltar),
                             ),
                         ],
                       );
                     },
                     steps: [
                       Step(
-                        title: const Text('Identificação'),
+                        title: const Text(ProcessCreateTexts.identificacao),
                         isActive: step >= 0,
                         state: step > 0
                             ? StepState.complete
@@ -591,7 +636,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                         content: _buildStepContent(0),
                       ),
                       Step(
-                        title: const Text('Clientes'),
+                        title: const Text(ProcessCreateTexts.clientes),
                         isActive: step >= 1,
                         state: step > 1
                             ? StepState.complete
@@ -599,7 +644,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                         content: _buildStepContent(1),
                       ),
                       Step(
-                        title: const Text('Juízo'),
+                        title: const Text(ProcessCreateTexts.juizo),
                         isActive: step >= 2,
                         state: step > 2
                             ? StepState.complete
@@ -607,7 +652,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                         content: _buildStepContent(2),
                       ),
                       Step(
-                        title: const Text('Partes'),
+                        title: const Text(ProcessCreateTexts.partes),
                         isActive: step >= 3,
                         state: step > 3
                             ? StepState.complete
@@ -615,7 +660,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
                         content: _buildStepContent(3),
                       ),
                       Step(
-                        title: const Text('Revisão'),
+                        title: const Text(ProcessCreateTexts.revisao),
                         isActive: step >= 4,
                         state: step == 4
                             ? StepState.editing
@@ -656,7 +701,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
           alignment: Alignment.centerLeft,
           child: TextButton.icon(
             onPressed: () async {
-              final name = await _showAddDialog('Nome da parte');
+              final name = await _showAddDialog(ProcessCreateTexts.nomeDaParte);
               if (name != null && name.isNotEmpty) {
                 list.add(Party(name: name));
                 c.draft.refresh();
@@ -664,7 +709,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
               }
             },
             icon: const Icon(Icons.add),
-            label: Text('Adicionar parte ${active ? 'ativa' : 'passiva'}'),
+            label: Text(ProcessCreateTexts.adicionarParte(active)),
           ),
         ),
       ],
@@ -694,7 +739,9 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
           alignment: Alignment.centerLeft,
           child: TextButton.icon(
             onPressed: () async {
-              final name = await _showAddDialog('Nome do advogado');
+              final name = await _showAddDialog(
+                ProcessCreateTexts.nomeAdvogado,
+              );
               if (name != null && name.isNotEmpty) {
                 list.add(Lawyer(name: name, oab: '0000', uf: 'SP'));
                 c.draft.refresh();
@@ -702,9 +749,7 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
               }
             },
             icon: const Icon(Icons.add),
-            label: Text(
-              'Adicionar advogado ${cliente ? 'do cliente' : 'contrário'}',
-            ),
+            label: Text(ProcessCreateTexts.adicionarAdvogado(cliente)),
           ),
         ),
       ],
@@ -726,11 +771,11 @@ class _ProcessCreatePageState extends State<ProcessCreatePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancelar'),
+            child: const Text(ProcessCreateTexts.cancelar),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(ctrl.text),
-            child: const Text('OK'),
+            child: const Text(ProcessCreateTexts.ok),
           ),
         ],
       ),

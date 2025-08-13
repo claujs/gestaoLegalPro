@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import '../../presentation/controllers/auth_controller.dart';
+import '../../presentation/viewmodels/auth_view_model.dart';
 import '../../../dashboard/presentation/pages/dashboard_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
-  final _auth = Get.find<AuthController>();
+  final _auth = Get.find<AuthViewModel>();
 
   @override
   void dispose() {
