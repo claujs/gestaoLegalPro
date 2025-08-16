@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.processo_agil"
+    namespace = "com.example.gestao_legal_pro"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.processo_agil"
+    applicationId = "com.example.gestao_legal_pro"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

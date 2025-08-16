@@ -113,7 +113,7 @@ class _MainAppState extends State<MainApp> {
     return Obx(
       () => MaterialApp.router(
         debugShowCheckedModeBanner: false,
-        title: 'Processo Ágil',
+        title: 'Gestão Legal Pro',
         supportedLocales: const [Locale('pt', 'BR')],
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,

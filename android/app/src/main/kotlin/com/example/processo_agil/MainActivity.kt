@@ -1,5 +1,1 @@
-package com.example.processo_agil
-
-import io.flutter.embedding.android.FlutterActivity
-
-class MainActivity : FlutterActivity()
+// Obsoleto: arquivo mantido vazio após renomeação de pacote.

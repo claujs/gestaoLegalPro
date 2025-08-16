@@ -87,11 +87,20 @@ class AppShell extends StatelessWidget {
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
           Expanded(
-            child: Text(
-              title ?? '',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+            child: Row(
+              children: [
+                const Icon(Icons.gavel_rounded, size: 22),
+                const SizedBox(width: 10),
+                Flexible(
+                  child: Text(
+                    title ?? '',
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           ...?actions,

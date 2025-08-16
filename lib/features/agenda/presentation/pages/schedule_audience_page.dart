@@ -299,7 +299,7 @@ class _ScheduleAudiencePageState extends State<ScheduleAudiencePage> {
                             Expanded(
                               child: Tooltip(
                                 message:
-                                    'Marque para enviar uma notificação push do Processo Ágil para o app instalado no seu smartphone (se você estiver logado nele). Útil para lembrar da audiência.',
+                                    'Marque para enviar uma notificação push do Gestão Legal Pro para o app instalado no seu smartphone (se você estiver logado nele). Útil para lembrar da audiência.',
                                 triggerMode: TooltipTriggerMode.longPress,
                                 waitDuration: const Duration(milliseconds: 400),
                                 child: const Text('Enviar push'),
@@ -308,7 +308,7 @@ class _ScheduleAudiencePageState extends State<ScheduleAudiencePage> {
                             const SizedBox(width: 4),
                             Tooltip(
                               message:
-                                  'Envia uma notificação push para o app Processo Ágil no seu celular avisando sobre esta audiência.',
+                                  'Envia uma notificação push para o app Gestão Legal Pro no seu celular avisando sobre esta audiência.',
                               child: const Icon(Icons.info_outline, size: 16),
                             ),
                           ],

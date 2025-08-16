@@ -1,11 +1,11 @@
 {
-    "name": "processo_agil",
-    "short_name": "processo_agil",
+    "name": "Gestão Legal Pro",
+    "short_name": "Gestão Legal Pro",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Gestão moderna de processos, clientes e agenda jurídica.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
