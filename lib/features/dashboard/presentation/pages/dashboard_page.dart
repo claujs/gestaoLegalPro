@@ -6,6 +6,7 @@ import '../../../processes/presentation/pages/process_list_page.dart';
 import '../../../processes/presentation/widgets/stat_card.dart';
 import '../../../clients/presentation/pages/client_list_page.dart';
 import '../../../assistant/presentation/pages/assistant_page.dart';
+import '../../../agenda/presentation/pages/schedule_audience_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -82,6 +83,8 @@ class _DashboardPageState extends State<DashboardPage> {
         return _dashboardOverview();
       case 1:
         return const ProcessListPage();
+      case 3:
+        return const ScheduleAudiencePage();
       case 4:
         return const ClientListPage();
       case 5:
@@ -94,7 +97,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _dashboardOverview() {
     final stats = [
       ('Prazos', '12', Icons.schedule),
-      ('Audiências', '4', Icons.mic_external_on_outlined),
+      ('Audiências', '4', Icons.gavel),
       ('Docs Recentes', '8', Icons.description_outlined),
     ];
     return LayoutBuilder(

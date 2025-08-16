@@ -349,7 +349,7 @@ class _ScheduleAudiencePageState extends State<ScheduleAudiencePage> {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: e.color,
-          child: const Icon(Icons.mic, color: Colors.white, size: 16),
+          child: const Icon(Icons.gavel, color: Colors.white, size: 16),
         ),
         title: Text(e.title),
         subtitle: Text(
