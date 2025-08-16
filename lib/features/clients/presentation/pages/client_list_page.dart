@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'dart:math' as math; // adicionado para cálculo de largura mínima
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http; // busca CEP
 import 'dart:convert'; // para jsonDecode
 import '../../../processes/presentation/viewmodels/process_list_view_model.dart';
@@ -165,16 +166,9 @@ class _ClientListPageState extends State<ClientListPage> {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Center(
               child: FilledButton.icon(
-                onPressed: () async {
-                  final box = Hive.box<ProcessClientLinkHive>('clientes');
-                  final novo = ProcessClientLinkHive(
-                    clientId: DateTime.now().millisecondsSinceEpoch.toString(),
-                    name: 'Novo Cliente',
-                    role: 'Autor',
-                    isPrimary: false,
-                  );
-                  await box.add(novo);
-                  await _carregar();
+                onPressed: () {
+                  // Abre o cadastro existente de cliente
+                  context.push('/dashboard/clientes/novo');
                 },
                 icon: const Icon(Icons.add),
                 label: const Text('Novo Cliente'),
