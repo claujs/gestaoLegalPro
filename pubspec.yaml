@@ -27,6 +27,7 @@ dependencies:
   syncfusion_flutter_pdf: ^30.2.5
   docx_to_text: ^1.0.1
   path: ^1.8.3
+  flutter_svg: ^2.0.10+1
 
 dev_dependencies:
   flutter_test:
@@ -35,3 +36,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/svg/
+    - assets/images/png/

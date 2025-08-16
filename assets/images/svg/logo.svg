@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" height="200" width="555.56" viewBox="0 0 500 180">
+  <!-- Ícone: quadrado arredondado com balança -->
+  <rect x="10" y="10" width="120" height="120" rx="20" ry="20" fill="none" stroke="#003366" stroke-width="8"/>
+  
+  <!-- Balança -->
+  <line x1="70" y1="30" x2="70" y2="110" stroke="#003366" stroke-width="6"/>
+  <line x1="40" y1="50" x2="100" y2="50" stroke="#003366" stroke-width="6"/>
+  <line x1="40" y1="50" x2="30" y2="90" stroke="#003366" stroke-width="4"/>
+  <line x1="100" y1="50" x2="110" y2="90" stroke="#003366" stroke-width="4"/>
+  <circle cx="30" cy="95" r="12" fill="none" stroke="#003366" stroke-width="4"/>
+  <circle cx="110" cy="95" r="12" fill="none" stroke="#003366" stroke-width="4"/>
+  
+  <!-- Texto -->
+  <text x="150" y="95" font-family="Arial, Helvetica, sans-serif" font-size="42" fill="#003366" font-weight="700">
+    Gestão Legal Pro
+  </text>
+</svg>

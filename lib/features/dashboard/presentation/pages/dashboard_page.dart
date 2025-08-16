@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 import '../../../../core/widgets/app_shell.dart';
+import '../../../auth/presentation/viewmodels/auth_view_model.dart';
 import '../../../processes/presentation/pages/process_list_page.dart';
 import '../../../processes/presentation/widgets/stat_card.dart';
 import '../../../clients/presentation/pages/client_list_page.dart';
@@ -18,6 +20,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   int _index = 0;
+  final _auth = Get.find<AuthViewModel>();
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +39,34 @@ class _DashboardPageState extends State<DashboardPage> {
               onPressed: () {},
               icon: const Icon(Icons.notifications_outlined),
             ),
-            const CircleAvatar(radius: 16, child: Icon(Icons.person, size: 18)),
+            PopupMenuButton<String>(
+              tooltip: 'Conta',
+              offset: const Offset(0, 36),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              itemBuilder: (context) => [
+                const PopupMenuItem<String>(
+                  value: 'logout',
+                  child: ListTile(
+                    leading: Icon(Icons.logout),
+                    title: Text('Sair do app'),
+                    contentPadding: EdgeInsets.zero,
+                    dense: true,
+                  ),
+                ),
+              ],
+              onSelected: (value) async {
+                if (value == 'logout') {
+                  await _auth.logout();
+                  if (context.mounted) context.go('/login');
+                }
+              },
+              child: const CircleAvatar(
+                radius: 16,
+                child: Icon(Icons.person, size: 18),
+              ),
+            ),
           ],
           child: _buildContent(),
         ),

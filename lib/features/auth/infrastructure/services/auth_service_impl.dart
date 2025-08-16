@@ -22,4 +22,12 @@ class AuthServiceImpl implements AuthService {
 
   @override
   bool get isLoggedIn => _token != null;
+
+  @override
+  Future<void> requestPasswordReset(String email) async {
+    // Simula o envio de e-mail de recuperação
+    await Future.delayed(const Duration(milliseconds: 500));
+    // Não falha; em um caso real, validaríamos e retornaríamos erro se necessário.
+    return;
+  }
 }

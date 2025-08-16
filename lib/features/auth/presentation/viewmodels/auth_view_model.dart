@@ -21,4 +21,18 @@ class AuthViewModel extends BaseViewModel {
   Future<void> logout() async {
     await _authService.logout();
   }
+
+  Future<bool> sendPasswordReset(String email) async {
+    setLoading(true);
+    clearError();
+    try {
+      await _authService.requestPasswordReset(email);
+      setLoading(false);
+      return true;
+    } catch (e) {
+      setError('Não foi possível enviar o e-mail. Tente novamente.');
+      setLoading(false);
+      return false;
+    }
+  }
 }

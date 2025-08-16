@@ -19,6 +19,7 @@ import 'features/processes/presentation/pages/process_create_page.dart';
 import 'features/clients/presentation/pages/client_create_page.dart';
 import 'features/clients/presentation/pages/client_list_page.dart';
 import 'features/clients/data/process_client_link_adapter.dart';
+import 'features/auth/presentation/pages/forgot_password_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,15 +57,24 @@ class _MainAppState extends State<MainApp> {
       ]),
       redirect: (context, state) {
         final logged = _auth.isLoggedIn;
-        final loggingIn = state.fullPath == LoginPage.route;
-        if (!logged && !loggingIn) return LoginPage.route;
-        if (logged && loggingIn) return DashboardPage.route;
+        final path = state.fullPath;
+        final isPublic =
+            path == LoginPage.route || path == ForgotPasswordPage.route;
+        if (!logged && !isPublic) return LoginPage.route;
+        if (logged &&
+            (path == LoginPage.route || path == ForgotPasswordPage.route)) {
+          return DashboardPage.route;
+        }
         return null;
       },
       routes: [
         GoRoute(
           path: LoginPage.route,
           builder: (ctx, st) => LoginPage(onToggleTheme: _theme.toggle),
+        ),
+        GoRoute(
+          path: ForgotPasswordPage.route,
+          builder: (ctx, st) => const ForgotPasswordPage(),
         ),
         GoRoute(
           path: DashboardPage.route,

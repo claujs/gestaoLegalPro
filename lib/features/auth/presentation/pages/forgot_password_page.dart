@@ -1,37 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import '../../presentation/viewmodels/auth_view_model.dart';
-import 'forgot_password_page.dart';
-import '../../../dashboard/presentation/pages/dashboard_page.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key, required this.onToggleTheme});
-  static const route = '/login';
-  final VoidCallback onToggleTheme;
+import '../viewmodels/auth_view_model.dart';
+import 'login_page.dart';
+
+class ForgotPasswordPage extends StatefulWidget {
+  const ForgotPasswordPage({super.key});
+  static const route = '/recuperar-senha';
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
-  final _passwordCtrl = TextEditingController();
   final _auth = Get.find<AuthViewModel>();
 
   @override
   void dispose() {
     _emailCtrl.dispose();
-    _passwordCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    final ok = await _auth.login(_emailCtrl.text.trim(), _passwordCtrl.text);
-    if (ok && mounted) {
-      context.go(DashboardPage.route);
+    final ok = await _auth.sendPasswordReset(_emailCtrl.text.trim());
+    if (!mounted) return;
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Se existir uma conta, enviaremos instruções por e-mail.',
+          ),
+        ),
+      );
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (mounted) context.go(LoginPage.route);
     }
   }
 
@@ -43,13 +49,7 @@ class _LoginPageState extends State<LoginPage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background base
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-            ),
-          ),
-          // Overlay gradient suave
+          Container(color: Theme.of(context).colorScheme.surface),
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -62,7 +62,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          // Conteúdo central
           Center(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -76,35 +75,13 @@ class _LoginPageState extends State<LoginPage> {
               },
             ),
           ),
-          // Botão de tema topo-direito
           Positioned(
             top: 12,
-            right: 12,
-            child: Tooltip(
-              message: 'Alternar tema',
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(32),
-                  onTap: widget.onToggleTheme,
-                  child: Ink(
-                    decoration: BoxDecoration(
-                      color: cs.surface.withOpacity(.25),
-                      borderRadius: BorderRadius.circular(32),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(.3),
-                        width: 1,
-                      ),
-                    ),
-                    padding: const EdgeInsets.all(10),
-                    child: Icon(
-                      isDark ? Icons.light_mode : Icons.dark_mode,
-                      size: 20,
-                      color: cs.onSurface.withOpacity(.9),
-                    ),
-                  ),
-                ),
-              ),
+            left: 12,
+            child: IconButton(
+              tooltip: 'Voltar',
+              onPressed: () => context.go(LoginPage.route),
+              icon: Icon(Icons.arrow_back, color: cs.onSurface),
             ),
           ),
         ],
@@ -113,7 +90,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _glassCard(BuildContext context, ColorScheme cs, bool isDark) {
-    // Card usando a cor primária do tema
     return Container(
       decoration: BoxDecoration(
         color: cs.primary,
@@ -147,13 +123,22 @@ class _LoginPageState extends State<LoginPage> {
                 Center(
                   child: Image.asset(
                     'assets/images/png/logo.png',
-                    height: 200,
+                    height: 160,
                     fit: BoxFit.contain,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Acesso à plataforma',
+                  'Recuperar acesso',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Informe seu e-mail para receber o link de redefinição de senha.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.white.withOpacity(.9),
@@ -161,59 +146,42 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
             if (error != null)
-              AnimatedOpacity(
-                opacity: 1,
-                duration: const Duration(milliseconds: 300),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(.15),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white.withOpacity(.35)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.error_rounded,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          error,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.close,
-                          size: 16,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withOpacity(.35)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.error_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        error,
+                        style: const TextStyle(
                           color: Colors.white,
-                        ),
-                        onPressed: () => _auth.error.value = null,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints.tightFor(
-                          width: 28,
-                          height: 28,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            if (error != null) const SizedBox(height: 20),
+            if (error != null) const SizedBox(height: 16),
             TextFormField(
               controller: _emailCtrl,
-              decoration: _inputDecoration('E-mail', Icons.alternate_email),
+              decoration: _inputDecoration('E-mail', Icons.alternate_email, cs),
               style: const TextStyle(color: Colors.white),
               cursorColor: Colors.white,
               validator: (v) {
@@ -221,36 +189,14 @@ class _LoginPageState extends State<LoginPage> {
                 if (!v.contains('@')) return 'E-mail inválido';
                 return null;
               },
+              keyboardType: TextInputType.emailAddress,
               autofillHints: const [
                 AutofillHints.username,
                 AutofillHints.email,
               ],
-            ),
-            const SizedBox(height: 18),
-            TextFormField(
-              controller: _passwordCtrl,
-              obscureText: true,
-              decoration: _inputDecoration('Senha', Icons.lock_outline),
-              style: const TextStyle(color: Colors.white),
-              cursorColor: Colors.white,
-              validator: (v) =>
-                  (v == null || v.length < 6) ? 'Mínimo 6 caracteres' : null,
-              autofillHints: const [AutofillHints.password],
               onFieldSubmitted: (_) => _submit(),
             ),
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () => context.go(ForgotPasswordPage.route),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  overlayColor: Colors.white24,
-                ),
-                child: const Text('Esqueceu sua senha?'),
-              ),
-            ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 18),
             FilledButton(
               onPressed: loading ? null : _submit,
               style: FilledButton.styleFrom(
@@ -272,20 +218,16 @@ class _LoginPageState extends State<LoginPage> {
                       width: 22,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Entrar'),
+                  : const Text('Enviar link de redefinição'),
             ),
-            const SizedBox(height: 18),
-            Center(
-              child: Text(
-                'Demo: admin@demo.com / 123456',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontStyle: FontStyle.italic,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withOpacity(.55),
-                ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => context.go(LoginPage.route),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                overlayColor: Colors.white24,
               ),
+              child: const Text('Voltar ao login'),
             ),
           ],
         );
@@ -293,7 +235,11 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  InputDecoration _inputDecoration(String label, IconData icon) {
+  InputDecoration _inputDecoration(
+    String label,
+    IconData icon,
+    ColorScheme cs,
+  ) {
     return InputDecoration(
       labelText: label,
       prefixIcon: Icon(icon, color: Colors.white),
@@ -315,6 +261,7 @@ class _LoginPageState extends State<LoginPage> {
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(color: Colors.red.withOpacity(.9), width: 1.4),
       ),
+
       labelStyle: const TextStyle(color: Colors.white),
       hintStyle: const TextStyle(color: Colors.white70),
     );

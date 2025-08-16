@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 ColorScheme _lightColorScheme = ColorScheme.fromSeed(
-  seedColor: const Color(0xFF1552F0),
+  seedColor: const Color(0xFF368986),
   brightness: Brightness.light,
 );
 ColorScheme _darkColorScheme = ColorScheme.fromSeed(
-  seedColor: const Color(0xFF1552F0),
+  seedColor: const Color(0xFF368986),
   brightness: Brightness.dark,
 );
 
