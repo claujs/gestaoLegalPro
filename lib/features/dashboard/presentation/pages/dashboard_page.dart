@@ -5,6 +5,7 @@ import '../../../../core/widgets/app_shell.dart';
 import '../../../processes/presentation/pages/process_list_page.dart';
 import '../../../processes/presentation/widgets/stat_card.dart';
 import '../../../clients/presentation/pages/client_list_page.dart';
+import '../../../assistant/presentation/pages/assistant_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -71,6 +72,7 @@ class _DashboardPageState extends State<DashboardPage> {
     2 => 'Documentos',
     3 => 'Agenda',
     4 => 'Clientes',
+    5 => 'Assistente',
     _ => 'Seção',
   };
 
@@ -82,6 +84,8 @@ class _DashboardPageState extends State<DashboardPage> {
         return const ProcessListPage();
       case 4:
         return const ClientListPage();
+      case 5:
+        return const AssistantPage();
       default:
         return const Center(child: Text('Em construção...'));
     }
